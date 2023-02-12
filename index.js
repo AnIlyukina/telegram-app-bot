@@ -29,15 +29,15 @@ bot.on("message", async (msg) => {
     // send a message to the chat acknowledging receipt of their message
     await bot.sendMessage(
       chatId,
-      "Привет, улыбнись и заполни форму!!!", {
+      "Привет, ты секси!!!", {
         reply_markup: {
           keyboard: [
-            [{text: 'Заполнить форму', web_app: { url: webAppUrl + '/form' }}]
+            [{text: 'Оставь отзыв', web_app: { url: webAppUrl + '/comment' }}]
           ]
         }
       }
     );
-    await bot.sendMessage(chatId, 'Заходите в наш интернет магазин', {
+    await bot.sendMessage(chatId, 'И тебе обязательно нужен кофе', {
       reply_markup: {
         inline_keyboard: [
           [{ text: "Сделать заказ", web_app: { url: webAppUrl } }],
@@ -50,13 +50,7 @@ bot.on("message", async (msg) => {
     try {
       const data = JSON.parse(msg?.web_app_data?.data);
       console.log(data);
-      await bot.sendMessage(chatId, "Cпасибо за обратную связь!");
-      await bot.sendMessage(chatId, "Ваш город: " + data?.city);
-      await bot.sendMessage(chatId, "Ваша улица: " + data?.street);
-      setTimeout(async() => {
-        await bot.sendMessage(chatId, "Всю информацию вы получите в этом чате");
-      }, 3000)
-
+      await bot.sendMessage(chatId, "Cпасибо за ваш заказ!");
     } catch {
       console.log(e)
     }
