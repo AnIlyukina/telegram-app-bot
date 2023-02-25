@@ -1,10 +1,18 @@
 // replace the value below with the Telegram token you receive from @BotFather
 const token = "6034648637:AAF3KUN6NQsTVSd5W_npG4sLONbRNkTJrqY";
 const webAppUrl = "https://stellar-salamander-baf63d.netlify.app";
+//const webAppUrl = "https://dcce-31-47-167-86.eu.ngrok.io";
 const TelegramBot = require("node-telegram-bot-api");
+const express = require('express')
+const cors = require('cors');
+
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
+
+const app = express()
+app.use(express.json())
+app.use(cors())
 
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, (msg, match) => {
@@ -17,6 +25,7 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 
   // send back the matched "whatever" to the chat
   bot.sendMessage(chatId, resp);
+  console.log(msg)
 });
 
 // Listen for any kind of message. There are different kinds of
@@ -37,7 +46,7 @@ bot.on("message", async (msg) => {
         }
       }
     );
-    await bot.sendMessage(chatId, 'И тебе обязательно нужен кофе', {
+    await bot.sendMessage(chatId, 'Утали жажду!', {
       reply_markup: {
         inline_keyboard: [
           [{ text: "Сделать заказ", web_app: { url: webAppUrl } }],
@@ -45,14 +54,44 @@ bot.on("message", async (msg) => {
       },
     });
   }
-  console.log(msg);
+  // console.log(msg);
   if (msg?.web_app_data?.data) {
     try {
       const data = JSON.parse(msg?.web_app_data?.data);
       console.log(data);
-      await bot.sendMessage(chatId, "Cпасибо за ваш заказ!");
+      await bot.sendMessage(chatId, "Cпасибо за ваш отзыв!");
     } catch {
       console.log(e)
     }
   }
 });
+app.post('/web-data', async (req, res) => {
+  const { queryId, userInfo, price, order } = req.body;
+  // console.log(userInfo, price, order);
+  try {
+      await bot.answerWebAppQuery(queryId, {
+        type: "article",
+        id: queryId,
+        title: "Успешная покупка",
+        input_message_content: {
+          message_text:
+            "Поздравляем с покупкой с вами скоро свяжутся. Cумма: " + price + "p.",
+        },
+      });
+      // return res.status(200)
+  } catch (e) {
+      await bot.answerWebAppQuery(queryId, {
+        type: "article",
+        id: queryId,
+        title: "Не удалось приобрести товар",
+        input_message_content: {
+          message_text:
+            "Не удалось приобрести товар",
+        },
+      });
+      // return res.status(500);
+    }
+})
+
+const PORT = 8000
+app.listen(PORT, () => console.log('server started on PORT ' + PORT))
